@@ -7,17 +7,24 @@ Something actually useful done by Kai Huuhko <kai.huuhko@gmail.com>
 """
 
 import os
+import time
+import getpass
+import sys
+import logging
+logging.basicConfig(level=logging.INFO)
+
+import PAM
+
 import ecore
 import evas
 import elementary
-import time, PAM, getpass, sys
-
 
 #----Popups
 def pw_error_popup(bt, win):
     popup = elementary.Popup(win)
     popup.size_hint_weight = evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND
-    popup.text = "<b>Error</><br><br>Incorrect Password!<br>Please try again."
+    popup.part_text_set("title,text", "Error")
+    popup.text = "Incorrect Password!<br>Please try again."
     popup.timeout = 3.0
     popup.show()
 
@@ -164,10 +171,10 @@ class eSudo(object):
             pw_error_popup(bt, self.mainWindow)
             en.entry = ""
             en.focus = True
-            print("Invalid password! Please try again.")
+            logging.info("Invalid password! Please try again.")
             return
         except:
-            print("Internal error! File bug report.")
+            logging.exception("Internal error! File bug report.")
         else:
             self.esudo_ok(bt, en)
 
@@ -185,7 +192,7 @@ class eSudo(object):
 #--------eSudo OK Button
     def esudo_ok(self, bt, en):
         password = en.entry
-        print("Starting %s" % self.cmd) #MODIFY TO SUIT YOUR NEEDS
+        logging.info("Starting %s" % self.cmd) #MODIFY TO SUIT YOUR NEEDS
         self.run_command("sudo -S '%s'" % (self.cmd), password) #PLACE COMMAND TO RUN AFTER PW-CHECK HERE
 
     def run_command(self, command, password):
@@ -196,28 +203,28 @@ class eSudo(object):
         cmd.on_del_event_add(self.command_done)
 
     def command_started(self, cmd, event, *args, **kwargs):
-        print("Command started")
-        print(cmd)
+        logging.debug("Command started")
+        logging.debug(cmd)
 
     def received_data(self, cmd, event, *args, **kwargs):
-        print("Received data")
-        print(event.data)
+        logging.debug("Received data")
+        logging.debug(event.data)
 
     def received_error(self, cmd, event, *args, **kwargs):
-        print("Received error")
-        print(event.data)
+        logging.debug("Received error")
+        logging.debug(event.data)
 
         password = args[0]
         cmd.send(str(password)+"\n")
 
     def command_done(self, cmd, event, *args, **kwargs):
-        print("Command done")
+        logging.debug("Command done")
+
         self.close()
 
 if __name__ == "__main__":
     cmd = " ".join(sys.argv[1:])
 
-    print cmd
     start = eSudo(cmd)
 
     elementary.run()
