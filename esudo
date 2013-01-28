@@ -192,7 +192,7 @@ class eSudo(object):
 
     def close(self):
         if self.Window:
-            elementary.exit()
+            self.mainWindow.hide()
         else:
             self.iw.delete()
 
@@ -231,8 +231,7 @@ class eSudo(object):
 
     def command_done(self, cmd, event, *args, **kwargs):
         logging.debug("Command done")
-
-        self.close()
+        elementary.exit()
 
 if __name__ == "__main__":
     cmd = " ".join(sys.argv[1:])
