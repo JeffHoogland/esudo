@@ -190,13 +190,13 @@ class eSudo(object):
 
     def close(self):
         if self.Window:
-            self.mainWindow.hide()
+            elementary.exit()
         else:
             self.iw.delete()
 
 #--------eSudo OK Button
     def esudo_ok(self, bt, en):
-        self.close()
+        #self.close()
         password = en.entry_get()
         if self.cmd:
             logging.info("Starting %s" % self.cmd)
@@ -217,6 +217,7 @@ class eSudo(object):
     def command_started(self, cmd, event, *args, **kwargs):
         logging.debug("Command started")
         logging.debug(cmd)
+        self.close()
 
     def received_data(self, cmd, event, *args, **kwargs):
         logging.debug("Received data")
@@ -231,5 +232,3 @@ class eSudo(object):
 
     def command_done(self, cmd, event, *args, **kwargs):
         logging.debug("Command done")
-        if self.Window:
-            elementary.exit()
