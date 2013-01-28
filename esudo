@@ -166,16 +166,34 @@ class eSudo(object):
 #--------eSudo OK Button
     def esudo_ok(self, bt, en):
         password = en.entry_get()
-        print("Starting %s"%self.cmd) #MODIFY TO SUIT YOUR NEEDS
-        self.run_command("sudo -S %s" %(self.cmd)) #PLACE COMMAND TO RUN AFTER PW-CHECK HERE
+        print("Starting %s" % self.cmd) #MODIFY TO SUIT YOUR NEEDS
+        self.run_command("sudo -S '%s'" % (self.cmd), password) #PLACE COMMAND TO RUN AFTER PW-CHECK HERE
 
-    def run_command(self, command):
-        cmd = ecore.Exe(command)
-        self.close()
+    def run_command(self, command, password):
+        self.cmd_exe = cmd = ecore.Exe(command, ecore.ECORE_EXE_PIPE_READ|ecore.ECORE_EXE_PIPE_ERROR|ecore.ECORE_EXE_PIPE_WRITE)
+        cmd.on_add_event_add(self.command_started)
+        cmd.on_data_event_add(self.received_data, password)
+        cmd.on_error_event_add(self.received_error, password)
         cmd.on_del_event_add(self.command_done)
 
-    def command_done(self, event=False, cmd=False):
-        print "Command done"
+    def command_started(self, cmd, event, *args, **kwargs):
+        print("Command started")
+        print(cmd)
+
+    def received_data(self, cmd, event, *args, **kwargs):
+        print("Received data")
+        print(event.data)
+
+    def received_error(self, cmd, event, *args, **kwargs):
+        print("Received error")
+        print(event.data)
+
+        password = args[0]
+        cmd.send(str(password)+"\n")
+
+    def command_done(self, cmd, event, *args, **kwargs):
+        print("Command done")
+        self.close()
 
 if __name__ == "__main__":
     cmd = " ".join(sys.argv[1:])
