@@ -122,8 +122,11 @@ class eSudo(object):
         iw.activate()
 
     def pw_entry_event(self, obj, entry, event_type, event, *args):
-        if event_type == evas.EVAS_CALLBACK_KEY_UP and event.keyname == "Return":
-            self.password_check(None, entry)
+        if event_type == evas.EVAS_CALLBACK_KEY_UP:
+            if event.keyname == "Return":
+                self.password_check(None, entry)
+            elif event.keyname == "Escape":
+                self.close()
 
         return True
 
