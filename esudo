@@ -75,6 +75,7 @@ class eSudo(object):
         lb.show()
 
         en = elementary.Entry(win)
+        en.elm_event_callback_add(self.pw_entry_event)
         en.single_line = True
         en.password = True
         en.size_hint_weight = 0.5, 0.5
@@ -119,6 +120,12 @@ class eSudo(object):
         iw.content = bz
         iw.show()
         iw.activate()
+
+    def pw_entry_event(self, obj, entry, event_type, event, *args):
+        if event_type == evas.EVAS_CALLBACK_KEY_UP and event.keyname == "Return":
+            self.password_check(None, entry)
+
+        return True
 
 #--------Password Checker
     def password_check(self, bt, en):
