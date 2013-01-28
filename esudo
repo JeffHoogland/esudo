@@ -29,7 +29,7 @@ def pw_error_popup(bt, win):
 
 #----eSudo
 class eSudo(object):
-    def __init__( self, command=False, window=False ):
+    def __init__( self, command=False, window=False, end_callback=False ):
         if not window:
             win = self.mainWindow = elementary.Window("esudo", elementary.ELM_WIN_DIALOG_BASIC)
             win.title = "eSudo"
@@ -45,6 +45,7 @@ class eSudo(object):
             self.Window = False
 
         self.cmd = command
+        self.end_cb = end_callback
 
 #--------eSudo Window
         bg = elementary.Background(win)
@@ -202,10 +203,10 @@ class eSudo(object):
         password = en.entry_get()
         if self.cmd:
             logging.info("Starting %s" % self.cmd)
-            self.run_command("sudo -S '%s'" % (self.cmd), password)
+            self.run_command("sudo -S %s" % (self.cmd), password)
         else:
             logging.info("Starting %s" % self.cmdline.entry_get())
-            self.run_command("sudo -S '%s'" % (self.cmdline.entry_get()), password)
+            self.run_command("sudo -S %s" % (self.cmdline.entry_get()), password)
 
     def run_command(self, command, password):
         self.cmd_exe = cmd = ecore.Exe(command, ecore.ECORE_EXE_PIPE_READ|ecore.ECORE_EXE_PIPE_ERROR|ecore.ECORE_EXE_PIPE_WRITE)
@@ -213,6 +214,8 @@ class eSudo(object):
         cmd.on_data_event_add(self.received_data, password)
         cmd.on_error_event_add(self.received_error, password)
         cmd.on_del_event_add(self.command_done)
+        if self.end_cb:
+            cmd.on_del_event_add(self.end_cb)
 
     def command_started(self, cmd, event, *args, **kwargs):
         logging.debug("Command started")
