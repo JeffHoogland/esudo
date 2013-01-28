@@ -178,16 +178,11 @@ class eSudo(object):
         print "Command done"
 
 if __name__ == "__main__":
-    cmd = ""
-    if len(sys.argv) == 2:
-        cmd = sys.argv[1]
-    elif len(sys.argv) > 2:
-        for x in sys.argv:
-            if sys.argv.index(x) > 0:
-                cmd = "%s %s"%(cmd, x)
+    cmd = " ".join(sys.argv[1:])
+
     print cmd
     start = eSudo(cmd)
 
-    elementary.run()    
+    elementary.run()
     elementary.shutdown()
 
