@@ -25,7 +25,8 @@ def pw_error_popup(bt, win):
 class eSudo(object):
     def __init__( self, command, window=False ):
         if not window:
-            win = self.mainWindow = elementary.StandardWindow("eSudo", "eSudo")
+            win = self.mainWindow = elementary.Window("esudo", elementary.ELM_WIN_DIALOG_BASIC)
+            win.title = "eSudo"
             win.borderless = True
             win.size_hint_weight = evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND
             win.size_hint_align = evas.EVAS_HINT_FILL, evas.EVAS_HINT_FILL
@@ -40,6 +41,11 @@ class eSudo(object):
         self.cmd = command
 
 #--------eSudo Window
+        bg = elementary.Background(win)
+        bg.size_hint_weight = 1.0, 1.0
+        win.resize_object_add(bg)
+        bg.show()
+
         bz = elementary.Box(win)
         bz.size_hint_weight = evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND
 
