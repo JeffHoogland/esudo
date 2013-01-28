@@ -231,4 +231,5 @@ class eSudo(object):
 
     def command_done(self, cmd, event, *args, **kwargs):
         logging.debug("Command done")
-        elementary.exit()
+        if self.Window:
+            elementary.exit()
