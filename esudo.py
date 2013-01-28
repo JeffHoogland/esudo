@@ -37,6 +37,11 @@ class eSudo(object):
             win.callback_delete_request_add(lambda o: elementary.exit())
             win.show()
             self.Window = True
+
+            bg = elementary.Background(win)
+            bg.size_hint_weight = 1.0, 1.0
+            win.resize_object_add(bg)
+            bg.show()
         else:
             self.mainWindow = win = window
             self.Window = False
@@ -45,11 +50,6 @@ class eSudo(object):
         self.end_cb = end_callback
 
 #--------eSudo Window
-        bg = elementary.Background(win)
-        bg.size_hint_weight = 1.0, 1.0
-        win.resize_object_add(bg)
-        bg.show()
-
         bz = elementary.Box(win)
         bz.size_hint_weight = evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND
 
