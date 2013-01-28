@@ -42,7 +42,7 @@ class eSudo(object):
         bz.size_hint_weight_set(evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND)
 
         fr = elementary.Frame(win)
-        fr.text_set("Command:")
+        fr.text_set("eSudo")
         bz.pack_end(fr)
 
         lb = elementary.Label(win)
