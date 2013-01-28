@@ -2,7 +2,8 @@
 
 """eSudo - a GUI sudo tool in python and elementary
 
-Base code by AntCenter, polished by Jeff Hoogland
+Base code by AntCer, polished by Jeff Hoogland
+Something actually useful done by Kai Huuhko <kai.huuhko@gmail.com>
 """
 
 import os
@@ -15,7 +16,7 @@ import time, PAM, getpass, sys
 #----Popups
 def pw_error_popup(bt, win):
     popup = elementary.Popup(win)
-    popup.size_hint_weight = (evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND)
+    popup.size_hint_weight = evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND
     popup.text = "<b>Error</><br><br>Incorrect Password!<br>Please try again."
     popup.timeout = 3.0
     popup.show()
@@ -24,12 +25,13 @@ def pw_error_popup(bt, win):
 class eSudo(object):
     def __init__( self, command, window=False ):
         if not window:
-            self.mainWindow = win = elementary.StandardWindow("eSudo", "eSudo")
-            self.mainWindow.size_hint_weight_set(evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND)
-            self.mainWindow.size_hint_align_set(evas.EVAS_HINT_FILL, evas.EVAS_HINT_FILL)
-            self.mainWindow.resize(300, 200)
-            self.mainWindow.callback_delete_request_add(lambda o: elementary.exit())
-            self.mainWindow.show()
+            win = self.mainWindow = elementary.StandardWindow("eSudo", "eSudo")
+            win.borderless = True
+            win.size_hint_weight = evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND
+            win.size_hint_align = evas.EVAS_HINT_FILL, evas.EVAS_HINT_FILL
+            win.resize(300, 200)
+            win.callback_delete_request_add(lambda o: elementary.exit())
+            win.show()
             self.Window = True
         else:
             self.mainWindow = win = window
@@ -39,20 +41,20 @@ class eSudo(object):
 
 #--------eSudo Window
         bz = elementary.Box(win)
-        bz.size_hint_weight_set(evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND)
+        bz.size_hint_weight = evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND
 
         fr = elementary.Frame(win)
-        fr.text_set("Command:")
+        fr.text = "Command:"
         bz.pack_end(fr)
 
         lb = elementary.Label(win)
-        lb.text = "<i>%s</i>"%self.cmd
-        lb.size_hint_align = (0.0, 0.5)
+        lb.text = "<i>%s</i>" % (self.cmd)
+        lb.size_hint_align = 0.0, 0.5
         fr.content = lb
         lb.show()
 
         sep = elementary.Separator(win)
-        sep.horizontal_set(True)
+        sep.horizontal = True
         bz.pack_end(sep)
         sep.show()
 
@@ -62,20 +64,20 @@ class eSudo(object):
 
         lb = elementary.Label(win)
         lb.text = "<b>Password:</b>"
-        lb.size_hint_align = (0.0, 0.5)
+        lb.size_hint_align = 0.0, 0.5
         bz1.pack_end(lb)
         lb.show()
 
         en = elementary.Entry(win)
         en.single_line = True
         en.password = True
-        en.size_hint_weight_set(0.5, 0.5)
-        en.size_hint_align_set(0.5, 0.5)
+        en.size_hint_weight = 0.5, 0.5
+        en.size_hint_align = 0.5, 0.5
         bz1.pack_end(en)
         en.show()
 
         sep = elementary.Separator(win)
-        sep.horizontal_set(True)
+        sep.horizontal = True
         bz.pack_end(sep)
         sep.show()
 
@@ -83,32 +85,32 @@ class eSudo(object):
         fr.show()
 
         bz2 = elementary.Box(win)
-        bz2.horizontal_set(True)
-        bz2.size_hint_weight_set(evas.EVAS_HINT_EXPAND, 0.0)
-        bz2.size_hint_align_set(evas.EVAS_HINT_FILL, evas.EVAS_HINT_FILL)
+        bz2.horizontal = True
+        bz2.size_hint_weight = evas.EVAS_HINT_EXPAND, 0.0
+        bz2.size_hint_align = evas.EVAS_HINT_FILL, evas.EVAS_HINT_FILL
 
         bt = elementary.Button(win)
-        bt.text_set("Cancel")
+        bt.text = "Cancel"
         bt.callback_clicked_add(self.esudo_cancel, en)
-        bt.size_hint_align_set(evas.EVAS_HINT_FILL, evas.EVAS_HINT_FILL)
-        bt.size_hint_weight_set(evas.EVAS_HINT_EXPAND, 0.0)
+        bt.size_hint_align = evas.EVAS_HINT_FILL, evas.EVAS_HINT_FILL
+        bt.size_hint_weight = evas.EVAS_HINT_EXPAND, 0.0
         bz2.pack_end(bt)
         bt.show()
 
         bt = elementary.Button(win)
-        bt.text_set("OK")
+        bt.text = "OK"
         bt.callback_clicked_add(self.password_check, en)
-        bt.size_hint_align_set(evas.EVAS_HINT_FILL, evas.EVAS_HINT_FILL)
-        bt.size_hint_weight_set(evas.EVAS_HINT_EXPAND, 0.0)
+        bt.size_hint_align = evas.EVAS_HINT_FILL, evas.EVAS_HINT_FILL
+        bt.size_hint_weight = evas.EVAS_HINT_EXPAND, 0.0
         bz2.pack_end(bt)
         bt.show()
 
         bz.pack_end(bz2)
         bz2.show()
 
-        en.focus_set(True)
+        en.focus = True
         self.iw = iw = elementary.InnerWindow(win)
-        iw.content_set(bz)
+        iw.content = bz
         iw.show()
         iw.activate()
 
@@ -117,7 +119,7 @@ class eSudo(object):
 
 #------------Sets Password
         def pam_conv(auth, query_list, userData):
-            password = en.entry_get()
+            password = en.entry
             resp = []
             for i in range(len(query_list)):
                 query, type = query_list[i]
@@ -144,7 +146,8 @@ class eSudo(object):
             auth.acct_mgmt()
         except PAM.error, resp:
             pw_error_popup(bt, self.mainWindow)
-            en.entry_set("")
+            en.entry = ""
+            en.focus = True
             print("Invalid password! Please try again.")
             return
         except:
@@ -154,7 +157,7 @@ class eSudo(object):
 
 #--------eSudo Cancel Button
     def esudo_cancel(self, bt, en):
-        en.entry_set("")
+        en.entry = ""
         self.close()
 
     def close(self):
@@ -165,7 +168,7 @@ class eSudo(object):
 
 #--------eSudo OK Button
     def esudo_ok(self, bt, en):
-        password = en.entry_get()
+        password = en.entry
         print("Starting %s" % self.cmd) #MODIFY TO SUIT YOUR NEEDS
         self.run_command("sudo -S '%s'" % (self.cmd), password) #PLACE COMMAND TO RUN AFTER PW-CHECK HERE
 
