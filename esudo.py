@@ -234,8 +234,9 @@ class eSudo(object):
         logging.debug("Received error")
         logging.debug(event.data)
 
-        password = args[0]
-        cmd.send(str(password)+"\n")
+        if "password for" in event.data:
+            password = args[0]
+            cmd.send(str(password)+"\n")
 
     def command_done(self, cmd, event, *args, **kwargs):
         logging.debug("Command done")
