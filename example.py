@@ -21,7 +21,10 @@ box.pack_end(lbl)
 
 window.show()
 
-esudo.eSudo(command, window)
+def cb():
+    print("The End")
+
+esudo.eSudo(command, window, end_callback=cb)
 
 elementary.run()
 elementary.shutdown()

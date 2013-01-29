@@ -28,7 +28,7 @@ def pw_error_popup(bt, win):
 
 #----eSudo
 class eSudo(object):
-    def __init__( self, command=False, window=False, end_callback=False ):
+    def __init__( self, command=False, window=False, end_callback=None ):
         if not window:
             win = self.mainWindow = elementary.Window("esudo", elementary.ELM_WIN_DIALOG_BASIC)
             win.title = "eSudo"
@@ -49,7 +49,7 @@ class eSudo(object):
             self.Window = False
 
         self.cmd = command
-        self.end_cb = end_callback
+        self.end_cb = end_callback if callable(end_callback) else None
 
 #--------eSudo Window
         bz = elementary.Box(win)
@@ -219,8 +219,6 @@ class eSudo(object):
         cmd.on_data_event_add(self.received_data, password)
         cmd.on_error_event_add(self.received_error, password)
         cmd.on_del_event_add(self.command_done)
-        if self.end_cb:
-            cmd.on_del_event_add(self.end_cb)
 
     def command_started(self, cmd, event, *args, **kwargs):
         logging.debug("Command started")
@@ -240,6 +238,11 @@ class eSudo(object):
 
     def command_done(self, cmd, event, *args, **kwargs):
         logging.debug("Command done")
+        if self.end_cb:
+            try:
+                self.end_cb()
+            except:
+                pass
         self.close()
 
 if __name__ == "__main__":
