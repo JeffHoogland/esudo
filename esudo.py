@@ -45,7 +45,7 @@ class eSudo(object):
         self.end_cb = end_callback
 
 #--------eSudo Window
-        bg = elementary.Background(win)
+        self.bg = bg = elementary.Background(win)
         bg.size_hint_weight = 1.0, 1.0
         win.resize_object_add(bg)
         bg.show()
@@ -130,6 +130,7 @@ class eSudo(object):
         en.focus = True
         self.iw = iw = elementary.InnerWindow(win)
         iw.content = bz
+        iw.show()
         iw.activate()
 
     def pw_entry_event(self, obj, entry, event_type, event, *args):
@@ -192,10 +193,10 @@ class eSudo(object):
             elementary.exit()
         else:
             self.iw.delete()
+            self.bg.hide()
 
 #--------eSudo OK Button
     def esudo_ok(self, bt, en):
-        #self.close()
         password = en.entry_get()
         if self.cmd:
             logging.info("Starting %s" % self.cmd)
@@ -216,7 +217,6 @@ class eSudo(object):
     def command_started(self, cmd, event, *args, **kwargs):
         logging.debug("Command started")
         logging.debug(cmd)
-        self.close()
 
     def received_data(self, cmd, event, *args, **kwargs):
         logging.debug("Received data")
@@ -231,3 +231,4 @@ class eSudo(object):
 
     def command_done(self, cmd, event, *args, **kwargs):
         logging.debug("Command done")
+        self.close()
