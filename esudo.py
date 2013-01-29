@@ -28,9 +28,9 @@ def pw_error_popup(bt, win):
 
 #----eSudo
 class eSudo(object):
-    def __init__( self, command=None, window=None, end_callback=None ):
-        if not window:
-            win = self.mainWindow = elementary.Window("esudo", elementary.ELM_WIN_DIALOG_BASIC)
+    def __init__( self, command=None, win=None, end_callback=None ):
+        if not win:
+            win = elementary.Window("esudo", elementary.ELM_WIN_DIALOG_BASIC)
             win.title = "eSudo"
             win.borderless = True
             win.size_hint_weight = evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND
@@ -38,15 +38,15 @@ class eSudo(object):
             win.resize(300, 200)
             win.callback_delete_request_add(lambda o: elementary.exit())
             win.show()
-            self.Window = True
 
             bg = elementary.Background(win)
             bg.size_hint_weight = 1.0, 1.0
             win.resize_object_add(bg)
             bg.show()
+
+            self.embedded = False
         else:
-            self.mainWindow = win = window
-            self.Window = False
+            self.embedded = True
 
         self.cmd = command
         self.end_cb = end_callback if callable(end_callback) else None
@@ -201,10 +201,7 @@ class eSudo(object):
         self.close()
 
     def close(self):
-        if self.Window:
-            elementary.exit()
-        else:
-            self.iw.delete()
+        self.iw.delete() if self.embedded else elementary.exit()
 
 #--------eSudo OK Button
     def esudo_ok(self, bt, en):
