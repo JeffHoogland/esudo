@@ -1,7 +1,10 @@
 #!/bin/env python2
 """A short example of using eSudo within another elementary application"""
 
-import elementary, esudo, evas
+import evas
+import elementary
+
+import esudo
 
 command = "leafpad"
 
