@@ -18,7 +18,8 @@ import evas
 import elementary
 
 #----Popups
-def pw_error_popup(bt, win):
+def pw_error_popup(en):
+    win = en.top_widget_get()
     popup = elementary.Popup(win)
     popup.size_hint_weight = evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND
     popup.part_text_set("title,text", "Error")
@@ -185,7 +186,7 @@ class eSudo(object):
             auth.authenticate()
             auth.acct_mgmt()
         except PAM.error, resp:
-            pw_error_popup(bt, self.mainWindow)
+            pw_error_popup(en)
             en.entry = ""
             en.focus = True
             logging.info("Invalid password! Please try again.")
