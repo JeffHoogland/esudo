@@ -31,7 +31,7 @@ def pw_error_popup(en):
 class eSudo(object):
     def __init__( self, command=None, win=None, end_callback=None ):
         if not win:
-            win = elementary.Window("esudo", elementary.ELM_WIN_DIALOG_BASIC)
+            win = self.win = elementary.Window("esudo", elementary.ELM_WIN_DIALOG_BASIC)
             win.title = "eSudo"
             win.borderless = True
             win.size_hint_weight = evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND
@@ -221,6 +221,7 @@ class eSudo(object):
     def command_started(self, cmd, event, *args, **kwargs):
         logging.debug("Command started")
         logging.debug(cmd)
+        self.iw.hide() if self.embedded else self.win.hide()
 
     def received_data(self, cmd, event, *args, **kwargs):
         logging.debug("Received data")
