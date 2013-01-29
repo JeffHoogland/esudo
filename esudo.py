@@ -130,7 +130,6 @@ class eSudo(object):
         en.focus = True
         self.iw = iw = elementary.InnerWindow(win)
         iw.content = bz
-        iw.show()
         iw.activate()
 
     def pw_entry_event(self, obj, entry, event_type, event, *args):
