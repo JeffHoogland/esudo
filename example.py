@@ -24,10 +24,14 @@ box.pack_end(lbl)
 
 window.show()
 
-def cb():
-    print("The End")
+def end_cb(exit_code):
+    if exit_code == 0:
+        print("Success")
+    else:
+        print("Something went wrong")
 
-esudo.eSudo(command, window, end_callback=cb)
+esudo.eSudo(command, window, end_callback=end_cb)
+esudo.eSudo("This cannot succeed", window, end_callback=end_cb)
 
 elementary.run()
 elementary.shutdown()
