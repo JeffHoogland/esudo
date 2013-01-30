@@ -212,7 +212,7 @@ class eSudo(object):
         password = en.entry
         cmd = self.cmdline.entry
         logging.info("Starting %s" % cmd)
-        self.run_command("sudo -S %s" % (cmd), password)
+        self.run_command("sudo -S '%s'" % (cmd), password)
 
     def run_command(self, command, password):
         self.cmd_exe = cmd = ecore.Exe(command, ecore.ECORE_EXE_PIPE_READ|ecore.ECORE_EXE_PIPE_ERROR|ecore.ECORE_EXE_PIPE_WRITE)
