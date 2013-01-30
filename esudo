@@ -1,14 +1,13 @@
-#!/usr/bin/python
+#!/usr/bin/env python2
 
 "eSudo launcher"
 
 import esudo, elementary, sys
 
-if __name__ == "__main__":
-    cmd = " ".join(sys.argv[1:])
+cmd = " ".join(sys.argv[1:])
 
-    start = esudo.eSudo(cmd)
+start = esudo.eSudo(cmd)
 
-    elementary.run()
-    elementary.shutdown()
+elementary.run()
+elementary.shutdown()
 

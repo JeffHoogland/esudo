@@ -1,8 +1,10 @@
-"""eSudo - a GUI sudo tool in python and elementary
-
-Base code by AntCer, polished by Jeff Hoogland
-Something actually useful done by Kai Huuhko <kai.huuhko@gmail.com>
-"""
+#!/bin/env python2
+#
+# eSudo - a GUI sudo tool in python and elementary
+#
+# Base code by AntCer, polished by Jeff Hoogland
+# Something actually useful done by Kai Huuhko <kai.huuhko@gmail.com>
+#
 
 import os
 import getpass
@@ -16,7 +18,8 @@ import evas
 import elementary
 
 #----Popups
-def pw_error_popup(bt, win):
+def pw_error_popup(en):
+    win = en.top_widget_get()
     popup = elementary.Popup(win)
     popup.size_hint_weight = evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND
     popup.part_text_set("title,text", "Error")
@@ -26,9 +29,9 @@ def pw_error_popup(bt, win):
 
 #----eSudo
 class eSudo(object):
-    def __init__( self, command=False, window=False, end_callback=False ):
-        if not window:
-            win = self.mainWindow = elementary.Window("esudo", elementary.ELM_WIN_DIALOG_BASIC)
+    def __init__( self, command=None, win=None, end_callback=None ):
+        if not win:
+            win = self.win = elementary.Window("esudo", elementary.ELM_WIN_DIALOG_BASIC)
             win.title = "eSudo"
             win.borderless = True
             win.size_hint_weight = evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND
@@ -36,107 +39,118 @@ class eSudo(object):
             win.resize(300, 200)
             win.callback_delete_request_add(lambda o: elementary.exit())
             win.show()
-            self.Window = True
 
             bg = elementary.Background(win)
             bg.size_hint_weight = 1.0, 1.0
             win.resize_object_add(bg)
             bg.show()
+
+            self.embedded = False
         else:
-            self.mainWindow = win = window
-            self.Window = False
+            self.embedded = True
 
         self.cmd = command
-        self.end_cb = end_callback
+        self.end_cb = end_callback if callable(end_callback) else None
 
 #--------eSudo Window
         bz = elementary.Box(win)
-        bz.size_hint_weight = evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND
+        bz.size_hint_weight = 1.0, 0.0
+        bz.size_hint_align = -1.0, 0.0
+        bz.show()
+
+        lbl = elementary.Label(win)
+        lbl.size_hint_align = 0.5, 0.0
+        lbl.scale = 2.0
+        lbl.text = "<b>eSudo</b>"
+        lbl.show()
+
+        bz.pack_end(lbl)
+
+        sep = elementary.Separator(win)
+        sep.horizontal = True
+        sep.show()
+
+        bz.pack_end(sep)
 
         fr = elementary.Frame(win)
-        bz.pack_end(fr)
-
-        if self.cmd:
-            fr.text_set("Command:")
-            self.cmdline = cmdline = elementary.Label(win)
-            cmdline.text = "<i>%s</i>"%self.cmd
-            cmdline.size_hint_align = (0.0, 0.5)
-        else:
-            fr.text_set("Enter Command:")
-            self.cmdline = cmdline = elementary.Entry(win)
-            cmdline.single_line = True
-            cmdline.size_hint_weight_set(0.5, 0.5)
-            cmdline.size_hint_align_set(0.5, 0.5)
-
-        cmdline.show()
-        fr.content = cmdline
-
-        sep = elementary.Separator(win)
-        sep.horizontal = True
-        bz.pack_end(sep)
-        sep.show()
-
-        bz1 = elementary.Box(win)
-        bz.pack_end(bz1)
-        bz1.show()
-
-        lb = elementary.Label(win)
-        lb.text = "<b>Password:</b>"
-        lb.size_hint_align = 0.0, 0.5
-        bz1.pack_end(lb)
-        lb.show()
-
-        en = elementary.Entry(win)
-        en.elm_event_callback_add(self.pw_entry_event)
-        en.single_line = True
-        en.password = True
-        en.size_hint_weight = 0.5, 0.5
-        en.size_hint_align = 0.5, 0.5
-        bz1.pack_end(en)
-        en.show()
-
-        sep = elementary.Separator(win)
-        sep.horizontal = True
-        bz.pack_end(sep)
-        sep.show()
-
-        bz.show()
+        fr.text = "Command:"
+        fr.size_hint_align = -1.0, 0.0
         fr.show()
 
-        bz2 = elementary.Box(win)
-        bz2.horizontal = True
-        bz2.size_hint_weight = evas.EVAS_HINT_EXPAND, 0.0
-        bz2.size_hint_align = evas.EVAS_HINT_FILL, evas.EVAS_HINT_FILL
+        bz.pack_end(fr)
+
+        self.cmdline = cmdline = elementary.Entry(win)
+        cmdline.elm_event_callback_add(self.entry_event)
+        cmdline.single_line = True
+        if self.cmd:
+            cmdline.text = self.cmd
+            cmdline.editable = False
+        cmdline.show()
+
+        fr.content = cmdline
+
+        fr = elementary.Frame(win)
+        fr.text = "Password:"
+        fr.size_hint_align = -1.0, 0.0
+        fr.show()
+
+        bz.pack_end(fr)
+
+        en = self.en = elementary.Entry(win)
+        en.name = "password"
+        en.elm_event_callback_add(self.entry_event)
+        en.single_line = True
+        en.password = True
+        en.show()
+
+        fr.content = en
+
+        sep = elementary.Separator(win)
+        sep.horizontal = True
+        sep.show()
+
+        bz.pack_end(sep)
+
+        btnb = elementary.Box(win)
+        btnb.horizontal = True
+        btnb.size_hint_weight = evas.EVAS_HINT_EXPAND, 0.0
+        btnb.size_hint_align = evas.EVAS_HINT_FILL, evas.EVAS_HINT_FILL
+        btnb.show()
 
         bt = elementary.Button(win)
         bt.text = "Cancel"
         bt.callback_clicked_add(self.esudo_cancel, en)
         bt.size_hint_align = evas.EVAS_HINT_FILL, evas.EVAS_HINT_FILL
         bt.size_hint_weight = evas.EVAS_HINT_EXPAND, 0.0
-        bz2.pack_end(bt)
         bt.show()
+
+        btnb.pack_end(bt)
 
         bt = elementary.Button(win)
         bt.text = "OK"
         bt.callback_clicked_add(self.password_check, en)
         bt.size_hint_align = evas.EVAS_HINT_FILL, evas.EVAS_HINT_FILL
         bt.size_hint_weight = evas.EVAS_HINT_EXPAND, 0.0
-        bz2.pack_end(bt)
         bt.show()
 
-        bz.pack_end(bz2)
-        bz2.show()
+        btnb.pack_end(bt)
 
-        en.focus = True
+        bz.pack_end(btnb)
+
         self.iw = iw = elementary.InnerWindow(win)
         iw.content = bz
         iw.show()
         iw.activate()
+        if self.cmd:
+            en.focus = True
 
-    def pw_entry_event(self, obj, entry, event_type, event, *args):
+    def entry_event(self, obj, entry, event_type, event, *args):
         if event_type == evas.EVAS_CALLBACK_KEY_UP:
             if event.keyname == "Return":
-                self.password_check(None, entry)
+                if entry.name == "password":
+                    self.password_check(None, entry)
+                else:
+                    self.en.focus = True
             elif event.keyname == "Escape":
                 self.close()
 
@@ -144,6 +158,8 @@ class eSudo(object):
 
 #--------Password Checker
     def password_check(self, bt, en):
+        if not en.entry or not self.cmdline.entry:
+            return
 
 #------------Sets Password
         def pam_conv(auth, query_list, userData):
@@ -173,7 +189,7 @@ class eSudo(object):
             auth.authenticate()
             auth.acct_mgmt()
         except PAM.error, resp:
-            pw_error_popup(bt, self.mainWindow)
+            pw_error_popup(en)
             en.entry = ""
             en.focus = True
             logging.info("Invalid password! Please try again.")
@@ -189,21 +205,14 @@ class eSudo(object):
         self.close()
 
     def close(self):
-        if self.Window:
-            elementary.exit()
-        else:
-            self.iw.delete()
+        self.iw.delete() if self.embedded else elementary.exit()
 
 #--------eSudo OK Button
     def esudo_ok(self, bt, en):
-        #self.close()
-        password = en.entry_get()
-        if self.cmd:
-            logging.info("Starting %s" % self.cmd)
-            self.run_command("sudo -S %s" % (self.cmd), password)
-        else:
-            logging.info("Starting %s" % self.cmdline.entry_get())
-            self.run_command("sudo -S %s" % (self.cmdline.entry_get()), password)
+        password = en.entry
+        cmd = self.cmdline.entry
+        logging.info("Starting %s" % cmd)
+        self.run_command("sudo -S %s" % (cmd), password)
 
     def run_command(self, command, password):
         self.cmd_exe = cmd = ecore.Exe(command, ecore.ECORE_EXE_PIPE_READ|ecore.ECORE_EXE_PIPE_ERROR|ecore.ECORE_EXE_PIPE_WRITE)
@@ -211,13 +220,11 @@ class eSudo(object):
         cmd.on_data_event_add(self.received_data, password)
         cmd.on_error_event_add(self.received_error, password)
         cmd.on_del_event_add(self.command_done)
-        if self.end_cb:
-            cmd.on_del_event_add(self.end_cb)
 
     def command_started(self, cmd, event, *args, **kwargs):
         logging.debug("Command started")
         logging.debug(cmd)
-        self.close()
+        self.iw.hide() if self.embedded else self.win.hide()
 
     def received_data(self, cmd, event, *args, **kwargs):
         logging.debug("Received data")
@@ -227,8 +234,24 @@ class eSudo(object):
         logging.debug("Received error")
         logging.debug(event.data)
 
-        password = args[0]
-        cmd.send(str(password)+"\n")
+        if "password for" in event.data:
+            password = args[0]
+            cmd.send(str(password)+"\n")
 
     def command_done(self, cmd, event, *args, **kwargs):
         logging.debug("Command done")
+        if self.end_cb:
+            try:
+                self.end_cb(event.exit_code)
+            except:
+                pass
+        self.close()
+
+if __name__ == "__main__":
+    import sys
+    cmd = " ".join(sys.argv[1:])
+
+    start = eSudo(cmd)
+
+    elementary.run()
+    elementary.shutdown()
