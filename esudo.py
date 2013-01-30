@@ -96,7 +96,7 @@ class eSudo(object):
 
         bz.pack_end(fr)
 
-        en = elementary.Entry(win)
+        en = self.en = elementary.Entry(win)
         en.name = "password"
         en.elm_event_callback_add(self.entry_event)
         en.single_line = True
@@ -146,8 +146,11 @@ class eSudo(object):
 
     def entry_event(self, obj, entry, event_type, event, *args):
         if event_type == evas.EVAS_CALLBACK_KEY_UP:
-            if event.keyname == "Return" and entry.name == "password":
-                self.password_check(None, entry)
+            if event.keyname == "Return":
+                if entry.name == "password":
+                    self.password_check(None, entry)
+                else:
+                    self.en.focus = True
             elif event.keyname == "Escape":
                 self.close()
 
