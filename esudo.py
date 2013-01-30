@@ -59,9 +59,9 @@ class eSudo(object):
         bz.show()
 
         lbl = elementary.Label(win)
-        lbl.size_hint_align = -1.0, 0.0
-        lbl.text = "eSudo"
+        lbl.size_hint_align = 0.5, 0.0
         lbl.scale = 2.0
+        lbl.text = "<b>eSudo</b>"
         lbl.show()
 
         bz.pack_end(lbl)
