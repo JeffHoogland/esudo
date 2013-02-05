@@ -29,7 +29,7 @@ def pw_error_popup(en):
 
 #----eSudo
 class eSudo(object):
-    def __init__( self, command=None, win=None, end_callback=None ):
+    def __init__( self, command=None, win=None, start_callback=None, end_callback=None, *args, **kwargs ):
         if not win:
             win = self.win = elementary.Window("esudo", elementary.ELM_WIN_DIALOG_BASIC)
             win.title = "eSudo"
@@ -50,7 +50,10 @@ class eSudo(object):
             self.embedded = True
 
         self.cmd = command
+        self.start_cb = start_callback if callable(start_callback) else None
         self.end_cb = end_callback if callable(end_callback) else None
+        self.args = args
+        self.kwargs = kwargs
 
 #--------eSudo Window
         bz = elementary.Box(win)
@@ -226,6 +229,11 @@ class eSudo(object):
     def command_started(self, cmd, event, *args, **kwargs):
         logging.debug("Command started")
         logging.debug(cmd)
+        if self.start_cb:
+            try:
+                self.start_cb(*self.args, **self.kwargs)
+            except:
+                logging.exception("Exception while running start_cb")
         self.iw.hide() if self.embedded else self.win.hide()
 
     def received_data(self, cmd, event, *args, **kwargs):
@@ -244,9 +252,9 @@ class eSudo(object):
         logging.debug("Command done")
         if self.end_cb:
             try:
-                self.end_cb(event.exit_code)
+                self.end_cb(event.exit_code, *self.args, **self.kwargs)
             except:
-                pass
+                logging.exception("Exception while running end_cb")
         self.close()
 
 if __name__ == "__main__":

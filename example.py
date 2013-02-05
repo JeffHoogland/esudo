@@ -24,14 +24,27 @@ box.pack_end(lbl)
 
 window.show()
 
-def end_cb(exit_code):
+def start_cb(*args, **kwargs):
+    n = kwargs["data"]
+    pb = elementary.Progressbar(window)
+    pb.style = "wheel"
+    pb.pulse(True)
+    n.orient = elementary.ELM_NOTIFY_ORIENT_CENTER
+    n.content = pb
+    n.show()
+
+def end_cb(exit_code, *args, **kwargs):
+    n = kwargs["data"]
+    n.delete()
     if exit_code == 0:
         print("Success")
     else:
         print("Something went wrong")
 
-esudo.eSudo(command, window, end_callback=end_cb)
-esudo.eSudo("This cannot succeed", window, end_callback=end_cb)
+n = elementary.Notify(window)
+esudo.eSudo(command, window, start_callback=start_cb, end_callback=end_cb, data=n)
+n = elementary.Notify(window)
+esudo.eSudo("This cannot succeed", window, start_callback=start_cb, end_callback=end_cb, data=n)
 
 elementary.run()
 elementary.shutdown()
