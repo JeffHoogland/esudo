@@ -259,6 +259,7 @@ class eSudo(object):
 
 if __name__ == "__main__":
     import sys
+    elementary.init()
     cmd = " ".join(sys.argv[1:])
 
     start = eSudo(cmd)
