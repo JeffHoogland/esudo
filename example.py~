@@ -46,6 +46,5 @@ esudo.eSudo(command, window, start_callback=start_cb, end_callback=end_cb, data=
 n = elementary.Notify(window)
 esudo.eSudo("This cannot succeed", window, start_callback=start_cb, end_callback=end_cb, data=n)
 
-elementary.init()
 elementary.run()
 elementary.shutdown()

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Hidden=false
+Exec=sudo esudo-properties
+Icon=gconfeditor
+Type=Application
+Categories=Settings;
+NoDisplay=false
+StartupNotify=true
+Comment=Configure properties of eSudo.
+Terminal=false
+Name=eSudo Properties
+Comment[en_US]=Configure properties of eSudo.

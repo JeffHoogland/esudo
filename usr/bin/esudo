@@ -1,0 +1,15 @@
+#!/usr/bin/python
+
+"eSudo launcher"
+
+import esudo.esudo as esudo
+import elementary, sys
+
+elementary.init()
+
+cmd = " ".join(sys.argv[1:])
+
+start = esudo.eSudo(cmd)
+
+elementary.run()
+elementary.shutdown()

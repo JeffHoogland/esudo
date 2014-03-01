@@ -1,0 +1,9 @@
+Package: esudo
+Version: 1.21
+Section: main
+Priority: optional
+Architecture: all
+Depends: python-efl, python-pam
+Maintainer: Anthony Cervantes
+Description: eSudo (elementary sudo frontend)
+ An Elementary GUI for sudo written in py-efls.

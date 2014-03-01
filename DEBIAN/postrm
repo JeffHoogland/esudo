@@ -1,0 +1,2 @@
+#!/bin/sh
+cp -s -f /usr/bin/gksu /usr/bin/gksudo

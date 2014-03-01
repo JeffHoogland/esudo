@@ -1,0 +1,183 @@
+#!/usr/bin/python
+import elementary, evas, ecore
+
+
+"""eSudo Properties - Part of eSudo package
+
+            Written by :    AntCer           """
+
+
+class eSudo_Properties():
+    def __init__(self, command=None):
+        #~ self.SERVICES = SERVICES = {'su' : None, 'sudo' : None, 'passwd' : None, 'login' : None, 'cron' : None}
+        self.SERVICES = SERVICES = {'sudo' : None, 'passwd' : None, 'login' : None}
+
+        if command != None:
+            self.cmd = cmd = command
+            if "-h" in cmd or "--help" in cmd:
+                print("usage: esudo-properties [-h] [-s [service]]\n")
+                print("Configures properties for eSudo, an Elementary frontend for 'sudo'\n")
+                print("arguments:")
+                print("\tnone\n")
+                print("optional arguments:")
+                print("\t-s\tIf no service is given as argument, returns list of services. If argument is given, changes authentication service.")
+                print("\t-h, --help\tShow this help message and exit.")
+                elementary.exit()
+            elif "-s" in cmd:
+                cmdparts = cmd.split()
+                num = len(cmdparts)
+                if num <= 2:
+                    if cmdparts[0] == "-s":
+                        if 1 == num:
+                            for service in SERVICES.keys():
+                                print(service)
+                        else:
+                            if cmdparts[1] == "sudo" or cmdparts[1] == "passwd" or cmdparts[1] == "login":
+                                    self.change(None, cmdparts[1], "1")
+                                    print("Successfully changed authentification service.")
+                            else:
+                                print("ERROR: Invalid service, '%s'."%cmdparts[1])
+                    else:
+                        print("ERROR: Invalid argument, '%s'."%cmdparts[0])
+                else:
+                    print("ERROR: Invalid number of arguments.")
+            else:
+                print("ERROR: Unidentified arguments, '%s'."%cmd)
+
+            elementary.exit()
+
+        else:
+            win = self.win = elementary.Window("esudo", elementary.ELM_WIN_DIALOG_BASIC)
+            win.title = "eSudo Properties"
+            win.size_hint_weight = evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND
+            win.size_hint_align = evas.EVAS_HINT_FILL, evas.EVAS_HINT_FILL
+            win.resize(300, 150)
+            win.callback_delete_request_add(lambda o: elementary.exit())
+            win.show()
+            win.activate()
+
+            bg = elementary.Background(win)
+            bg.size_hint_weight = 1.0, 1.0
+            win.resize_object_add(bg)
+            bg.show()
+
+            bz = elementary.Box(win)
+            bz.size_hint_weight = evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND
+            bz.size_hint_align = evas.EVAS_HINT_FILL, evas.EVAS_HINT_FILL
+            win.resize_object_add(bz)
+            bz.show()
+
+            fil = elementary.Box(win)
+            fil.size_hint_weight = evas.EVAS_HINT_EXPAND, 0.2
+            bz.pack_end(fil)
+            fil.show()
+
+            lb = elementary.Label(win)
+            lb.scale = 1.2
+            lb.text = "<b>Authentification</>"
+            lb.size_hint_weight = evas.EVAS_HINT_EXPAND, 0.0
+            lb.size_hint_align = 0.0, evas.EVAS_HINT_FILL
+            bz.pack_end(lb)
+            lb.show()
+
+            hz = elementary.Box(win)
+            hz.horizontal = True
+            hz.size_hint_weight = evas.EVAS_HINT_EXPAND, 0.0
+            hz.size_hint_align = evas.EVAS_HINT_FILL, evas.EVAS_HINT_FILL
+            bz.pack_end(hz)
+            hz.show()
+
+            lb = elementary.Label(win)
+            lb.text = "Service: "
+            lb.size_hint_weight = evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND
+            lb.size_hint_align = 0.8, evas.EVAS_HINT_FILL
+            hz.pack_end(lb)
+            lb.show()
+
+            hs = elementary.Hoversel(win)
+            hs.hover_parent_set(win)
+            hs.text_set(self.text("1"))
+            for service in SERVICES.keys():
+                SERVICES[service] = hs.item_add(service)
+            hs.callback_selected_add(self.change, "1")
+            hs.size_hint_weight = evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND
+            hs.size_hint_align = -0.1, evas.EVAS_HINT_FILL
+            hz.pack_end(hs)
+            hs.show()
+
+            sep = elementary.Separator(win)
+            sep.horizontal = True
+            bz.pack_end(sep)
+            sep.show()
+
+            fil = elementary.Box(win)
+            fil.size_hint_weight = evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND
+            bz.pack_end(fil)
+            fil.show()
+
+            #~ lb = elementary.Label(win)
+            #~ lb.text = "<b>Screen Display</>"
+            #~ lb.size_hint_weight = evas.EVAS_HINT_EXPAND, 0.0
+            #~ lb.size_hint_align = 0.0, evas.EVAS_HINT_FILL
+            #~ bz.pack_end(lb)
+            #~ lb.show()
+
+            bt = elementary.Button(win)
+            bt.text = "Close"
+            bt.callback_clicked_add(lambda o: elementary.exit())
+            bt.size_hint_align = 1.0 , evas.EVAS_HINT_FILL
+            bt.size_hint_weight = evas.EVAS_HINT_EXPAND, 0.0
+            bz.pack_end(bt)
+            bt.show()
+
+
+    def text(self, string):
+        if string == "1":
+            with open("/etc/esudo/service") as file:
+                service = file.readline()[:-1]
+                return service
+
+    def change(self, hs, lstitem, string):
+        if hs:
+            if string == "1":
+                for service in self.SERVICES.keys():
+                    if self.SERVICES[service] == lstitem:
+                        hs.text_set(service)
+                        self.write_change(service, string)
+                        break
+        else:
+            service = lstitem
+            self.write_change(service, string)
+
+    def write_change(self, service, string):
+        if string == "1":
+            with open("/etc/esudo/service", "w") as file:
+                service = "%s\n"%service
+                file.write(service)
+
+
+
+if __name__ == "__main__":
+    import sys
+
+    try:
+        with open("/etc/esudo/service") as readonly:
+            text = readonly.readline()
+            with open("/etc/esudo/service", "w") as writeonly:
+                writeonly.write(text)
+    except:
+        print "ERROR: Please run with sudo."
+        quit()
+
+    cmd = None
+
+    if len(sys.argv) > 1:
+        cmd = " ".join(sys.argv[1:])
+
+
+    elementary.init()
+
+    start = eSudo_Properties(cmd)
+
+    elementary.run()
+    elementary.shutdown()

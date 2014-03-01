@@ -1,0 +1,12 @@
+[Desktop Entry]
+Hidden=false
+Exec=esudo
+Icon=addressbook
+Type=Application
+Categories=System;
+NoDisplay=false
+StartupNotify=true
+Comment=An elementary frontend for sudo written in py-efls.
+Terminal=false
+Name=eSudo
+Comment[en_US]=An elementary frontend for sudo written in py-efls.
