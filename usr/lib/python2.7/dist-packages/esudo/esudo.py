@@ -182,7 +182,7 @@ class eSudo(object):
 
 #--------Password Checker
     def password_check(self, bt, en):
-        if not en.entry or not self.cmdline.entry:
+        if not self.cmdline.entry:
             return
 
 #------------Sets Password
