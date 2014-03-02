@@ -3,7 +3,7 @@
 "eSudo launcher"
 
 import esudo.esudo as esudo
-import elementary, sys
+import elementary, sys, os
 
 if sys.argv[1] == "--desktop":
     cmd = " ".join(sys.argv[4:])
@@ -11,7 +11,13 @@ else:
     cmd = " ".join(sys.argv[1:])
 cmd = "gksu-original %s"%cmd
 
-start = esudo.eSudo(cmd)
+#Make sure we aren't already running as root
+if os.geteuid() != 0:
+    #if we aren't show a GUI to get user password
+    start = esudo.eSudo(cmd)
+else:
+    #If we are - just fire the command
+    os.system(cmd)
 
 elementary.run()
 elementary.shutdown()
