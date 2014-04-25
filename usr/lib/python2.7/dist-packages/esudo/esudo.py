@@ -264,6 +264,9 @@ class eSudo(object):
         command  = "cp /home/%s/.Xauthority /tmp/libesudo"%getpass.getuser()
         ecore.Exe(command, ecore.ECORE_EXE_PIPE_READ|ecore.ECORE_EXE_PIPE_ERROR|ecore.ECORE_EXE_PIPE_WRITE)
 
+        command  = "cp -a /home/%s/.elementary /tmp/libesudo"%getpass.getuser()
+        ecore.Exe(command, ecore.ECORE_EXE_PIPE_READ|ecore.ECORE_EXE_PIPE_ERROR|ecore.ECORE_EXE_PIPE_WRITE)
+
         self.run_command("HOME='/tmp/libesudo' ; sudo -S %s" % (cmd), password)
 
 #--------Run Command
