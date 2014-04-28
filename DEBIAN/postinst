@@ -1,7 +1,7 @@
 #!/bin/sh
 mv /usr/bin/gksu /usr/bin/gksu-original
-mv /usr/bin/esudo-gksu /usr/bin/gksu
 cp -s -f /usr/bin/esudo /usr/bin/gksudo
+cp -s -f /usr/bin/esudo /usr/bin/gksu
 
 FILE="/usr/bin/pkexec"
 
