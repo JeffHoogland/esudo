@@ -1,3 +1,0 @@
-#!/bin/sh
-mv /usr/bin/gksu /usr/bin/esudo-gksu
-mv /usr/bin/gksu-original /usr/bin/gksu
