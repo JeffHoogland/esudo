@@ -1,5 +1,15 @@
 #!/usr/bin/python
-import elementary, evas, ecore
+from efl import evas
+from efl import elementary
+from efl.elementary.window import Window, ELM_WIN_DIALOG_BASIC
+from efl.elementary.background import Background
+from efl.elementary.box import Box
+from efl.elementary.label import Label
+from efl.elementary.button import Button
+from efl.elementary.hoversel import Hoversel
+from efl.elementary.separator import Separator
+
+# TODO: formatting fixes, change custom arg parser to use standard argparse
 
 
 """eSudo Properties - Part of eSudo package
@@ -10,9 +20,13 @@ import elementary, evas, ecore
 class eSudo_Properties():
     def __init__(self, command=None):
         #~ self.SERVICES = SERVICES = {'su' : None, 'sudo' : None, 'passwd' : None, 'login' : None, 'cron' : None}
-        self.SERVICES = SERVICES = {'sudo' : None, 'passwd' : None, 'login' : None}
+        self.SERVICES = SERVICES = {
+            'sudo': None,
+            'passwd': None,
+            'login': None
+        }
 
-        if command != None:
+        if command is not None:
             self.cmd = cmd = command
             if "-h" in cmd or "--help" in cmd:
                 print("usage: esudo-properties [-h] [-s [service]]\n")
@@ -36,18 +50,18 @@ class eSudo_Properties():
                                     self.change(None, cmdparts[1], "1")
                                     print("Successfully changed authentification service.")
                             else:
-                                print("ERROR: Invalid service, '%s'."%cmdparts[1])
+                                print("ERROR: Invalid service, '%s'." % cmdparts[1])
                     else:
-                        print("ERROR: Invalid argument, '%s'."%cmdparts[0])
+                        print("ERROR: Invalid argument, '%s'." % cmdparts[0])
                 else:
                     print("ERROR: Invalid number of arguments.")
             else:
-                print("ERROR: Unidentified arguments, '%s'."%cmd)
+                print("ERROR: Unidentified arguments, '%s'." % cmd)
 
             elementary.exit()
 
         else:
-            win = self.win = elementary.Window("esudo", elementary.ELM_WIN_DIALOG_BASIC)
+            win = self.win = Window("esudo", ELM_WIN_DIALOG_BASIC)
             win.title = "eSudo Properties"
             win.size_hint_weight = evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND
             win.size_hint_align = evas.EVAS_HINT_FILL, evas.EVAS_HINT_FILL
@@ -56,23 +70,23 @@ class eSudo_Properties():
             win.show()
             win.activate()
 
-            bg = elementary.Background(win)
+            bg = Background(win)
             bg.size_hint_weight = 1.0, 1.0
             win.resize_object_add(bg)
             bg.show()
 
-            bz = elementary.Box(win)
+            bz = Box(win)
             bz.size_hint_weight = evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND
             bz.size_hint_align = evas.EVAS_HINT_FILL, evas.EVAS_HINT_FILL
             win.resize_object_add(bz)
             bz.show()
 
-            fil = elementary.Box(win)
+            fil = Box(win)
             fil.size_hint_weight = evas.EVAS_HINT_EXPAND, 0.2
             bz.pack_end(fil)
             fil.show()
 
-            lb = elementary.Label(win)
+            lb = Label(win)
             lb.scale = 1.2
             lb.text = "<b>Authentification</>"
             lb.size_hint_weight = evas.EVAS_HINT_EXPAND, 0.0
@@ -80,21 +94,21 @@ class eSudo_Properties():
             bz.pack_end(lb)
             lb.show()
 
-            hz = elementary.Box(win)
+            hz = Box(win)
             hz.horizontal = True
             hz.size_hint_weight = evas.EVAS_HINT_EXPAND, 0.0
             hz.size_hint_align = evas.EVAS_HINT_FILL, evas.EVAS_HINT_FILL
             bz.pack_end(hz)
             hz.show()
 
-            lb = elementary.Label(win)
+            lb = Label(win)
             lb.text = "Service: "
             lb.size_hint_weight = evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND
             lb.size_hint_align = 0.8, evas.EVAS_HINT_FILL
             hz.pack_end(lb)
             lb.show()
 
-            hs = elementary.Hoversel(win)
+            hs = Hoversel(win)
             hs.hover_parent_set(win)
             hs.text_set(self.text("1"))
             for service in SERVICES.keys():
@@ -105,31 +119,30 @@ class eSudo_Properties():
             hz.pack_end(hs)
             hs.show()
 
-            sep = elementary.Separator(win)
+            sep = Separator(win)
             sep.horizontal = True
             bz.pack_end(sep)
             sep.show()
 
-            fil = elementary.Box(win)
+            fil = Box(win)
             fil.size_hint_weight = evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND
             bz.pack_end(fil)
             fil.show()
 
-            #~ lb = elementary.Label(win)
+            #~ lb = Label(win)
             #~ lb.text = "<b>Screen Display</>"
             #~ lb.size_hint_weight = evas.EVAS_HINT_EXPAND, 0.0
             #~ lb.size_hint_align = 0.0, evas.EVAS_HINT_FILL
             #~ bz.pack_end(lb)
             #~ lb.show()
 
-            bt = elementary.Button(win)
+            bt = Button(win)
             bt.text = "Close"
             bt.callback_clicked_add(lambda o: elementary.exit())
-            bt.size_hint_align = 1.0 , evas.EVAS_HINT_FILL
+            bt.size_hint_align = 1.0, evas.EVAS_HINT_FILL
             bt.size_hint_weight = evas.EVAS_HINT_EXPAND, 0.0
             bz.pack_end(bt)
             bt.show()
-
 
     def text(self, string):
         if string == "1":
@@ -152,9 +165,8 @@ class eSudo_Properties():
     def write_change(self, service, string):
         if string == "1":
             with open("/etc/esudo/service", "w") as file:
-                service = "%s\n"%service
+                service = "%s\n" % service
                 file.write(service)
-
 
 
 if __name__ == "__main__":
@@ -173,7 +185,6 @@ if __name__ == "__main__":
 
     if len(sys.argv) > 1:
         cmd = " ".join(sys.argv[1:])
-
 
     elementary.init()
 

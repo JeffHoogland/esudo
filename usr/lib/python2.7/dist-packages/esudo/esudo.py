@@ -10,9 +10,19 @@ Something actually useful done by Kai Huuhko <kai.huuhko@gmail.com>
 import os
 import getpass
 import PAM
-import ecore
-import evas
-import elementary
+from efl import ecore
+from efl import evas
+from efl import elementary
+from efl.elementary.window import Window, ELM_WIN_DIALOG_BASIC
+from efl.elementary.background import Background
+from efl.elementary.box import Box
+from efl.elementary.label import Label
+from efl.elementary.popup import Popup
+from efl.elementary.frame import Frame
+from efl.elementary.separator import Separator
+from efl.elementary.entry import Entry
+from efl.elementary.button import Button
+from efl.elementary.innerwindow import InnerWindow
 import logging
 
 logging.basicConfig()
@@ -22,7 +32,7 @@ log.setLevel(logging.WARN)
 #----Popups
 def pw_error_popup(en):
     win = en.top_widget_get()
-    popup = elementary.Popup(win)
+    popup = Popup(win)
     popup.size_hint_weight = evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND
     popup.part_text_set("title,text", "Error")
     popup.text = "Incorrect Password!<br>Please try again."
@@ -32,10 +42,13 @@ def pw_error_popup(en):
 
 #----eSudo
 class eSudo(object):
-    def __init__( self, command=None, win=None, start_callback=None, end_callback=None, *args, **kwargs ):
+    def __init__(self,
+                 command=None, win=None,
+                 start_callback=None, end_callback=None,
+                 *args, **kwargs):
         if not win:
             nowindow = True
-            win = self.win = elementary.Window("esudo", elementary.ELM_WIN_DIALOG_BASIC)
+            win = self.win = Window("esudo", ELM_WIN_DIALOG_BASIC)
             win.title = "eSudo"
             win.borderless = True
             win.size_hint_weight = evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND
@@ -47,7 +60,7 @@ class eSudo(object):
             win.show()
             win.activate()
 
-            bg = elementary.Background(win)
+            bg = Background(win)
             bg.size_hint_weight = 1.0, 1.0
             win.resize_object_add(bg)
             bg.show()
@@ -64,7 +77,7 @@ class eSudo(object):
         self.kwargs = kwargs
 
 #--------eSudo Window
-        bz = elementary.Box(win)
+        bz = Box(win)
         if nowindow:
             bz.size_hint_weight = evas.EVAS_HINT_EXPAND, 0.0
         else:
@@ -73,7 +86,7 @@ class eSudo(object):
         bz.show()
 
         if nowindow:
-            lbl = elementary.Label(win)
+            lbl = Label(win)
             lbl.style = "marker"
             lbl.color = 170, 170, 170, 255
             lbl.size_hint_align = 0.5, 0.0
@@ -82,24 +95,24 @@ class eSudo(object):
             bz.pack_end(lbl)
             lbl.show()
 
-            sep = elementary.Separator(win)
+            sep = Separator(win)
             sep.horizontal = True
             bz.pack_end(sep)
             sep.show()
 
-        fr = elementary.Frame(win)
+        fr = Frame(win)
         fr.text = "Command:"
         fr.size_hint_align = evas.EVAS_HINT_FILL, 0.0
         bz.pack_end(fr)
         fr.show()
 
         if nowindow:
-            sep = elementary.Separator(win)
+            sep = Separator(win)
             sep.horizontal = True
             bz.pack_end(sep)
             sep.show()
 
-        self.cmdline = cmdline = elementary.Entry(win)
+        self.cmdline = cmdline = Entry(win)
         cmdline.elm_event_callback_add(self.entry_event)
         cmdline.single_line = True
         if self.cmd:
@@ -109,23 +122,23 @@ class eSudo(object):
         cmdline.show()
 
         if nowindow:
-            fr = elementary.Frame(win)
+            fr = Frame(win)
             fr.text = "Password:"
             fr.size_hint_align = evas.EVAS_HINT_FILL, 0.0
             bz.pack_end(fr)
             fr.show()
         else:
-            bz1 = elementary.Box(win)
+            bz1 = Box(win)
             bz.pack_end(bz1)
             bz1.show()
 
-            lb = elementary.Label(win)
+            lb = Label(win)
             lb.text = "<b>Password:</b>"
             lb.size_hint_align = 0.0, 0.5
             bz1.pack_end(lb)
             lb.show()
 
-        en = self.en = elementary.Entry(win)
+        en = self.en = Entry(win)
         en.name = "password"
         en.elm_event_callback_add(self.entry_event)
         en.single_line = True
@@ -137,19 +150,19 @@ class eSudo(object):
         else:
             bz1.pack_end(en)
 
-        sep = elementary.Separator(win)
+        sep = Separator(win)
         sep.horizontal = True
         bz.pack_end(sep)
         sep.show()
 
-        btnb = elementary.Box(win)
+        btnb = Box(win)
         btnb.horizontal = True
         btnb.size_hint_weight = evas.EVAS_HINT_EXPAND, 0.0
         btnb.size_hint_align = evas.EVAS_HINT_FILL, evas.EVAS_HINT_FILL
         bz.pack_end(btnb)
         btnb.show()
 
-        bt = elementary.Button(win)
+        bt = Button(win)
         bt.text = "Cancel"
         bt.callback_clicked_add(self.esudo_cancel, en)
         bt.size_hint_align = evas.EVAS_HINT_FILL, evas.EVAS_HINT_FILL
@@ -157,7 +170,7 @@ class eSudo(object):
         btnb.pack_end(bt)
         bt.show()
 
-        bt = elementary.Button(win)
+        bt = Button(win)
         bt.text = "OK"
         bt.callback_clicked_add(self.password_check, en)
         bt.size_hint_align = evas.EVAS_HINT_FILL, evas.EVAS_HINT_FILL
@@ -165,7 +178,7 @@ class eSudo(object):
         btnb.pack_end(bt)
         bt.show()
 
-        self.iw = iw = elementary.InnerWindow(win)
+        self.iw = iw = InnerWindow(win)
         iw.content = bz
         iw.show()
         iw.activate()
@@ -195,10 +208,12 @@ class eSudo(object):
             resp = []
             for i in range(len(query_list)):
                 query, type = query_list[i]
-                if type == PAM.PAM_PROMPT_ECHO_ON or type == PAM.PAM_PROMPT_ECHO_OFF:
+                if type == PAM.PAM_PROMPT_ECHO_ON or \
+                        type == PAM.PAM_PROMPT_ECHO_OFF:
                     val = password
                     resp.append((val, 0))
-                elif type == PAM.PAM_PROMPT_ERROR_MSG or type == PAM.PAM_PROMPT_TEXT_INFO:
+                elif type == PAM.PAM_PROMPT_ERROR_MSG or \
+                        type == PAM.PAM_PROMPT_TEXT_INFO:
                     resp.append(('', 0))
                 else:
                     return None
@@ -242,7 +257,7 @@ class eSudo(object):
         cmd = self.cmdline.entry
         cmdprts = cmd.split(" ")
         cmdnum = len(cmdprts)
-        log.info("Starting '%s'..."%cmd)
+        log.info("Starting '%s'..." % cmd)
 
         if cmdnum > 1:
             command = cmdprts[0]
@@ -250,12 +265,12 @@ class eSudo(object):
                 if i > 0:
                     path = " ".join(cmdprts[i:])
                     if os.path.exists(path):
-                        cmd = "%s '%s'"%(command, path)
+                        cmd = "%s '%s'" % (command, path)
                         break
 
         try:
             arguments = self.kwargs["cmdargs"]
-            cmd = "%s %s"%(cmd, arguments)
+            cmd = "%s %s" % (cmd, arguments)
         except Exception:
             pass
 
@@ -273,7 +288,12 @@ class eSudo(object):
 
 #--------Run Command
     def run_command(self, command, password):
-        self.cmd_exe = cmd = ecore.Exe(command, ecore.ECORE_EXE_PIPE_READ|ecore.ECORE_EXE_PIPE_ERROR|ecore.ECORE_EXE_PIPE_WRITE)
+        self.cmd_exe = cmd = ecore.Exe(
+            command,
+            ecore.ECORE_EXE_PIPE_READ |
+            ecore.ECORE_EXE_PIPE_ERROR |
+            ecore.ECORE_EXE_PIPE_WRITE
+        )
         cmd.on_add_event_add(self.command_started)
         cmd.on_data_event_add(self.received_data)
         cmd.on_error_event_add(self.received_error, password)
@@ -294,7 +314,7 @@ class eSudo(object):
 
     def received_error(self, cmd, event, *args, **kwargs):
         if not "sudo" in event.data or not "password for" in event.data:
-            log.debug("Error: %s"%event.data)
+            log.debug("Error: %s" % event.data)
         else:
             password = args[0]
             cmd.send(str(password)+"\n")
@@ -304,7 +324,9 @@ class eSudo(object):
 
         if self.end_cb:
             try:
-                self.end_cb(event.exit_code, self.win, *self.args, **self.kwargs)
+                self.end_cb(
+                    event.exit_code, self.win, *self.args, **self.kwargs
+                )
             except Exception:
                 log.exception()
         self.close()

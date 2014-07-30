@@ -3,13 +3,15 @@
 "eSudo launcher"
 
 import esudo.esudo as esudo
-import elementary, sys, os
+from efl import elementary
+import sys
+import os
 
 if sys.argv[1] == "--desktop":
     cmd = " ".join(sys.argv[4:])
 else:
     cmd = " ".join(sys.argv[1:])
-cmd = "gksu-original %s"%cmd
+cmd = "gksu-original %s" % cmd
 
 #Make sure we aren't already running as root
 if os.geteuid() != 0:

@@ -3,7 +3,9 @@
 "eSudo launcher"
 
 import esudo.esudo as esudo
-import elementary, sys, os
+from efl import elementary
+import sys
+import os
 
 elementary.init()
 
