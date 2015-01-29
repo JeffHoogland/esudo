@@ -1,5 +1,5 @@
 Package: esudo
-Version: 1.35
+Version: 1.36
 Section: main
 Priority: optional
 Replaces: gksu
