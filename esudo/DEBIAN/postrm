@@ -1,0 +1,13 @@
+#!/bin/sh
+
+rm /usr/bin/pkexec
+
+FILE="/usr/bin/pkexec-old"
+
+if [ -f $FILE ];
+then
+   echo "File $FILE exists, moving it back now that esudo is removed"
+   mv /usr/bin/pkexec-old /usr/bin/pkexec
+else
+   echo "File $FILE does not exist."
+fi

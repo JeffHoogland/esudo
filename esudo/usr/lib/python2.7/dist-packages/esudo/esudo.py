@@ -119,6 +119,7 @@ class eSudo(object):
             cmdline.text = self.cmd
             cmdline.editable = False
         fr.content = cmdline
+        cmdline.scrollable_set(True)
         cmdline.show()
 
         if nowindow:
