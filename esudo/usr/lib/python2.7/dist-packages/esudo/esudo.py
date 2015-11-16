@@ -260,6 +260,8 @@ class eSudo(object):
         cmdnum = len(cmdprts)
         log.info("Starting '%s'..." % cmd)
 
+        #This seems to break a lot of commands - what was it supposed to do?
+        '''
         if cmdnum > 1:
             command = cmdprts[0]
             for i in range(cmdnum):
@@ -273,7 +275,7 @@ class eSudo(object):
             arguments = self.kwargs["cmdargs"]
             cmd = "%s %s" % (cmd, arguments)
         except Exception:
-            pass
+            pass'''
 
         #Old method. Using -E is cleaner
         #if not os.path.exists("/tmp/libesudo"):
