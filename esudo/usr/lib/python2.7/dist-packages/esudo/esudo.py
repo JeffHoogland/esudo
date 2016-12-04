@@ -10,6 +10,7 @@ Something actually useful done by Kai Huuhko <kai.huuhko@gmail.com>
 import os
 import getpass
 import PAM
+from HTMLParser import HTMLParser
 from efl import ecore
 from efl import evas
 from efl import elementary
@@ -205,7 +206,7 @@ class eSudo(object):
 
 #------------Sets Password
         def pam_conv(auth, query_list, userData):
-            password = en.entry
+            password = HTMLParser().unescape(en.entry.encode('utf8'))
             resp = []
             for i in range(len(query_list)):
                 query, type = query_list[i]
@@ -254,7 +255,7 @@ class eSudo(object):
 
 #--------eSudo OK Button
     def esudo_ok(self, bt, en):
-        password = en.entry
+        password = HTMLParser().unescape(en.entry.encode('utf8'))
         cmd = self.cmdline.entry
         cmdprts = cmd.split(" ")
         cmdnum = len(cmdprts)
