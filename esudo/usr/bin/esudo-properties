@@ -9,57 +9,39 @@ from efl.elementary.button import Button
 from efl.elementary.hoversel import Hoversel
 from efl.elementary.separator import Separator
 
-# TODO: formatting fixes, change custom arg parser to use standard argparse
-
+# TODO: formatting fixes
 
 """eSudo Properties - Part of eSudo package
 
             Written by :    AntCer           """
 
+def current_service():
+    try:
+        with open("/etc/esudo/service") as readonly:
+            text = readonly.readline().rstrip() #Be sure to truncate newline
+    except IOError as e:
+        if e.errno == errno.ENOENT:
+
+            print("Error: esudo improperly installed or configured, attemping to fix.\n")
+            text = ''
+        else:
+            print("Unknown error: perhaps reinstall esudo.")
+    return text
+
+def set_service(service):
+
+    with open("/etc/esudo/service", "w") as f:
+                f.write("{0}\n".format(service))
 
 class eSudo_Properties():
-    def __init__(self, command=None):
+    def __init__(self, SERVICES, service):
         #~ self.SERVICES = SERVICES = {'su' : None, 'sudo' : None, 'passwd' : None, 'login' : None, 'cron' : None}
-        self.SERVICES = SERVICES = {
-            'sudo': None,
-            'passwd': None,
-            'login': None
-        }
+        self.SERVICES = SERVICES
+        self.default = 'sudo'
 
-        if command is not None:
-            self.cmd = cmd = command
-            if "-h" in cmd or "--help" in cmd:
-                print("usage: esudo-properties [-h] [-s [service]]\n")
-                print("Configures properties for eSudo, an Elementary frontend for 'sudo'\n")
-                print("arguments:")
-                print("\tnone\n")
-                print("optional arguments:")
-                print("\t-s\tIf no service is given as argument, returns list of services. If argument is given, changes authentication service.")
-                print("\t-h, --help\tShow this help message and exit.")
-                elementary.exit()
-            elif "-s" in cmd:
-                cmdparts = cmd.split()
-                num = len(cmdparts)
-                if num <= 2:
-                    if cmdparts[0] == "-s":
-                        if 1 == num:
-                            for service in SERVICES.keys():
-                                print(service)
-                        else:
-                            if cmdparts[1] == "sudo" or cmdparts[1] == "passwd" or cmdparts[1] == "login":
-                                    self.change(None, cmdparts[1], "1")
-                                    print("Successfully changed authentification service.")
-                            else:
-                                print("ERROR: Invalid service, '%s'." % cmdparts[1])
-                    else:
-                        print("ERROR: Invalid argument, '%s'." % cmdparts[0])
-                else:
-                    print("ERROR: Invalid number of arguments.")
-            else:
-                print("ERROR: Unidentified arguments, '%s'." % cmd)
-
+        if service:
+            self.change(None, service)
             elementary.exit()
-
         else:
             win = self.win = Window("esudo", ELM_WIN_DIALOG_BASIC)
             win.title = "eSudo Properties"
@@ -110,10 +92,12 @@ class eSudo_Properties():
 
             hs = Hoversel(win)
             hs.hover_parent_set(win)
-            hs.text_set(self.text("1"))
+            if not self.text:
+                set_service(self.default)
+            hs.text_set(self.text)
             for service in SERVICES.keys():
                 SERVICES[service] = hs.item_add(service)
-            hs.callback_selected_add(self.change, "1")
+            hs.callback_selected_add(self.change)
             hs.size_hint_weight = evas.EVAS_HINT_EXPAND, evas.EVAS_HINT_EXPAND
             hs.size_hint_align = -0.1, evas.EVAS_HINT_FILL
             hz.pack_end(hs)
@@ -144,51 +128,66 @@ class eSudo_Properties():
             bz.pack_end(bt)
             bt.show()
 
-    def text(self, string):
-        if string == "1":
-            with open("/etc/esudo/service") as file:
-                service = file.readline()[:-1]
-                return service
+    @property
+    def text(self):
+        return current_service()
 
-    def change(self, hs, lstitem, string):
+    def change(self, hs, lstitem):
         if hs:
-            if string == "1":
-                for service in self.SERVICES.keys():
-                    if self.SERVICES[service] == lstitem:
-                        hs.text_set(service)
-                        self.write_change(service, string)
-                        break
+            for service in self.SERVICES.keys():
+                if self.SERVICES[service] == lstitem:
+                    hs.text_set(service)
+                    set_service(service)
+                    break
         else:
             service = lstitem
-            self.write_change(service, string)
-
-    def write_change(self, service, string):
-        if string == "1":
-            with open("/etc/esudo/service", "w") as file:
-                service = "%s\n" % service
-                file.write(service)
+            set_service(service)
+        print("Successfully changed authentification service to {0}".format(service))
 
 
 if __name__ == "__main__":
-    import sys
+    import argparse
+    import errno
+    import os
 
-    try:
-        with open("/etc/esudo/service") as readonly:
-            text = readonly.readline()
-            with open("/etc/esudo/service", "w") as writeonly:
-                writeonly.write(text)
-    except:
-        print "ERROR: Please run with sudo."
-        quit()
+    # Some variables to make life easier
+    SERVICES = {'sudo':   None,
+                'passwd': None,
+                'login':  None}
+    SERVICE_FLAG = 'list'
+    SERVICE_CHOICES = SERVICES.keys()
+    SERVICE_CHOICES.append(SERVICE_FLAG)
 
-    cmd = None
+    # Parse command line options
+    parser = argparse.ArgumentParser(description="Configures properties for eSudo, an Elementary frontend for 'sudo'. If no arguments are given and called as root, opens a configuration window for esudo.")
+    parser.add_argument("-s", "--service", const = SERVICE_FLAG, nargs='?',choices=SERVICE_CHOICES,
+                        dest='service',
+                        help = "If no service or list is specified, returns a list of services. If a valid argument other than 'list' is given and esudo is called as root, changes authentication service ")
+    args = parser.parse_args()
 
-    if len(sys.argv) > 1:
-        cmd = " ".join(sys.argv[1:])
+    # Get Current service and attempt to fix it if broken
+    text = current_service()
 
-    elementary.init()
+    if not text or text not in SERVICES.keys():
+        if os.geteuid() != 0:
+            print text, SERVICES.keys(), len(text)
+            print("Error: please run with sudo.")
+            exit(1)
+        print text
+        text = 'sudo'
+        set_service(text)
 
-    start = eSudo_Properties(cmd)
-
-    elementary.run()
-    elementary.shutdown()
+    # if service option is 'list' list available servies
+    if args.service == SERVICE_FLAG:
+        for service in sorted(SERVICES.keys()):
+            print(service)
+        print("\nCurrent esudo authentification service selected: {0}".format(text))
+    # otherwise start GUI
+    else:
+        if os.geteuid() != 0:
+            print("Error: please run with sudo.")
+            exit(1)
+        elementary.init()
+        eSudo_Properties(SERVICES, args.service)
+        elementary.run()
+        elementary.shutdown()
