@@ -317,7 +317,7 @@ class eSudo(object):
             log.debug(event.data)
 
     def received_error(self, cmd, event, *args, **kwargs):
-        if not "sudo" in event.data or not "password for" in event.data:
+        if not "sudo" in event.data:
             log.debug("Error: %s" % event.data)
         else:
             password = args[0]
