@@ -21,7 +21,7 @@ from efl.elementary.label import Label
 from efl.elementary.popup import Popup
 from efl.elementary.frame import Frame
 from efl.elementary.separator import Separator
-from efl.elementary.entry import Entry
+from efl.elementary.entry import Entry, markup_to_utf8
 from efl.elementary.button import Button
 from efl.elementary.innerwindow import InnerWindow
 import logging
@@ -256,7 +256,11 @@ class eSudo(object):
 #--------eSudo OK Button
     def esudo_ok(self, bt, en):
         password = HTMLParser().unescape(en.entry.encode('utf8'))
-        cmd = self.cmdline.entry
+        if '&quot;' in self.cmdline.entry:
+            #cmd = HTMLParser().unescape(self.cmdline.entry.encode('utf8'))
+            cmd = markup_to_utf8(self.cmdline.entry)
+        else:
+            cmd = self.cmdline.entry
         cmdprts = cmd.split(" ")
         cmdnum = len(cmdprts)
         log.info("Starting '%s'..." % cmd)
