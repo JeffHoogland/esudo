@@ -341,7 +341,13 @@ class eSudo(object):
 
 if __name__ == "__main__":
     import sys
-    cmd = " ".join(sys.argv[1:])
+    
+    new_arg = []
+    for i in sys.argv[1:]:
+        if ' ' in i:
+            i = '"'+ i + '"'
+        new_arg.append(i)
+    cmd = " ".join(new_arg)
 
     elementary.init()
 
