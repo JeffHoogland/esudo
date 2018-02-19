@@ -292,7 +292,10 @@ class eSudo(object):
         #ecore.Exe(command, ecore.ECORE_EXE_PIPE_READ|ecore.ECORE_EXE_PIPE_ERROR|ecore.ECORE_EXE_PIPE_WRITE)
 
         #self.run_command("HOME='/tmp/libesudo' ; sudo -S %s" % (cmd), password)
-        self.run_command("sudo -ES %s" % (cmd), password)
+        if cmd.split()[0] == 'pcmanfm':
+            self.run_command("sudo -S %s" % (cmd), password)
+        else:
+            self.run_command("sudo -ES %s" % (cmd), password)
 
 #--------Run Command
     def run_command(self, command, password):
