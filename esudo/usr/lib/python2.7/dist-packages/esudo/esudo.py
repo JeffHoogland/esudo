@@ -293,7 +293,7 @@ class eSudo(object):
 
         #self.run_command("HOME='/tmp/libesudo' ; sudo -S %s" % (cmd), password)
         if cmd.split()[0] == 'pcmanfm':
-            self.run_command("sudo -S %s" % (cmd), password)
+            self.run_command("HOME=/root sudo -S %s" % (cmd), password)
         else:
             self.run_command("sudo -ES %s" % (cmd), password)
 
